@@ -1466,21 +1466,22 @@ SLASHLINE
 	"\t\t// Product 3, data input\n"
 	"\t\treg\tsigned	[(IWIDTH+1):0]	p3d_in;\n"
 "\n");
-	fprintf(fp,
-	"\t\treg\tsigned	[((IWIDTH+1)+(CWIDTH)-1):0]	rp_one, rp_two;\n"
-	"\t\treg\tsigned	[((IWIDTH+2)+(CWIDTH+1)-1):0]	rp_three;\n"
-"\n");
 	if(custom_mult) {
 		fprintf(fp,
-		"\t\twire\tsigned\t[((IWIDTH+1)+(CWIDTH)-1):0]\n"
-		"\t\t\trp_one_mult, rp_two_mult;\n"
-		"\t\twire\tsigned\t[((IWIDTH+2)+(CWIDTH+1)-1):0] rp_three_mult;\n"
-		// "\t\tassign rp_one_mult = p1c_in * p1d_in;\n"
-		// "\t\tassign rp_two_mult = p2c_in * p2d_in;\n"
-		// "\t\tassign rp_three_mult = p3c_in * p3d_in;\n"
-		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_one(i_clk, i_reset, p1c_in, p1d_in, rp_one_mult);\n"
-		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_two(i_clk, i_reset, p2c_in, p2d_in, rp_two_mult);\n"
-		"\t\tfftmult #(.CWIDTH(CWIDTH+1), .IWIDTH(IWIDTH+2)) mult_three(i_clk, i_reset, p3c_in, p3d_in, rp_three_mult);\n");
+		"\t\twire\tsigned	[((IWIDTH+1)+(CWIDTH)-1):0]	rp_one, rp_two;\n"
+		"\t\twire\tsigned	[((IWIDTH+2)+(CWIDTH+1)-1):0]	rp_three;\n"
+		"\n");
+		fprintf(fp,
+		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_one(i_clk, i_reset, p1c_in, p1d_in, rp_one);\n"
+		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_two(i_clk, i_reset, p2c_in, p2d_in, rp_two);\n"
+		"\t\tfftmult #(.CWIDTH(CWIDTH+1), .IWIDTH(IWIDTH+2)) mult_three(i_clk, i_reset, p3c_in, p3d_in, rp_three);\n");
+	}
+	else {
+
+		fprintf(fp,
+		"\t\treg\tsigned	[((IWIDTH+1)+(CWIDTH)-1):0]	rp_one, rp_two;\n"
+		"\t\treg\tsigned	[((IWIDTH+2)+(CWIDTH+1)-1):0]	rp_three;\n"
+		"\n");
 	}
 
 	fprintf(fp,
@@ -1500,19 +1501,7 @@ SLASHLINE
 		fprintf(fp,
 "`ifndef	FORMAL\n");
 
-	if(custom_mult){
-		fprintf(fp,
-		"\t\talways @(posedge i_clk)\n"
-		"\t\tif (i_ce)\n"
-		"\t\tbegin\n"
-			"\t\t\t// Third clock, pipeline = 3\n"
-			"\t\t\t//   As desired, each of these lines infers a DSP48\n"
-			"\t\t\trp_one   <= rp_one_mult;\n"
-			"\t\t\trp_two   <= rp_two_mult;\n"
-			"\t\t\trp_three <= rp_three_mult;\n"
-		"\t\tend\n");
-	}
-	else {
+	if(!custom_mult){
 		fprintf(fp,
 		"\t\talways @(posedge i_clk)\n"
 		"\t\tif (i_ce)\n"
