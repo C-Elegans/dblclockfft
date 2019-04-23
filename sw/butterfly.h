@@ -43,6 +43,6 @@ extern	void	build_butterfly(const char *fname, int xtracbits,
 			const bool async_reset = false);
 
 extern	void	build_hwbfly(const char *fname, int xtracbits, ROUND_T rounding,
-		int ckpce = 3, const bool async_reset= false);
+		int ckpce = 3, const bool async_reset = false, bool custom_mult = false);
 
 #endif

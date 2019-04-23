@@ -714,6 +714,8 @@ SLASHLINE
 				"\t\t\t\trp3_one;\n"
 "\n");
 
+
+
 	fprintf(fp,
 	"\t\talways @(posedge i_clk)\n"
 	"\t\tif (MPYREMAINDER == 0)\n"
@@ -1276,7 +1278,7 @@ SLASHLINE
 }
 
 void	build_hwbfly(const char *fname, int xtracbits, ROUND_T rounding,
-		int ckpce, const bool async_reset) {
+		int ckpce, const bool async_reset, bool custom_mult) {
 	FILE	*fp = fopen(fname, "w");
 	if (NULL == fp) {
 		fprintf(stderr, "Could not open \'%s\' for writing\n", fname);
@@ -1468,6 +1470,18 @@ SLASHLINE
 	"\t\treg\tsigned	[((IWIDTH+1)+(CWIDTH)-1):0]	rp_one, rp_two;\n"
 	"\t\treg\tsigned	[((IWIDTH+2)+(CWIDTH+1)-1):0]	rp_three;\n"
 "\n");
+	if(custom_mult) {
+		fprintf(fp,
+		"\t\twire\tsigned\t[((IWIDTH+1)+(CWIDTH)-1):0]\n"
+		"\t\t\trp_one_mult, rp_two_mult;\n"
+		"\t\twire\tsigned\t[((IWIDTH+2)+(CWIDTH+1)-1):0] rp_three_mult;\n"
+		// "\t\tassign rp_one_mult = p1c_in * p1d_in;\n"
+		// "\t\tassign rp_two_mult = p2c_in * p2d_in;\n"
+		// "\t\tassign rp_three_mult = p3c_in * p3d_in;\n"
+		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_one(i_clk, p1c_in, p1d_in, rp_one_mult);\n"
+		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_two(i_clk, p2c_in, p2d_in, rp_two_mult);\n"
+		"\t\tfftmult #(.CWIDTH(CWIDTH+1), .IWIDTH(IWIDTH+2)) mult_three(i_clk, p3c_in, p3d_in, rp_three_mult);\n");
+	}
 
 	fprintf(fp,
 	"\t\talways @(posedge i_clk)\n"
@@ -1486,16 +1500,30 @@ SLASHLINE
 		fprintf(fp,
 "`ifndef	FORMAL\n");
 
-	fprintf(fp,
-	"\t\talways @(posedge i_clk)\n"
-	"\t\tif (i_ce)\n"
-	"\t\tbegin\n"
-		"\t\t\t// Third clock, pipeline = 3\n"
-		"\t\t\t//   As desired, each of these lines infers a DSP48\n"
-		"\t\t\trp_one   <= p1c_in * p1d_in;\n"
-		"\t\t\trp_two   <= p2c_in * p2d_in;\n"
-		"\t\t\trp_three <= p3c_in * p3d_in;\n"
-	"\t\tend\n");
+	if(custom_mult){
+		fprintf(fp,
+		"\t\talways @(posedge i_clk)\n"
+		"\t\tif (i_ce)\n"
+		"\t\tbegin\n"
+			"\t\t\t// Third clock, pipeline = 3\n"
+			"\t\t\t//   As desired, each of these lines infers a DSP48\n"
+			"\t\t\trp_one   <= rp_one_mult;\n"
+			"\t\t\trp_two   <= rp_two_mult;\n"
+			"\t\t\trp_three <= rp_three_mult;\n"
+		"\t\tend\n");
+	}
+	else {
+		fprintf(fp,
+		"\t\talways @(posedge i_clk)\n"
+		"\t\tif (i_ce)\n"
+		"\t\tbegin\n"
+			"\t\t\t// Third clock, pipeline = 3\n"
+			"\t\t\t//   As desired, each of these lines infers a DSP48\n"
+			"\t\t\trp_one   <= p1c_in * p1d_in;\n"
+			"\t\t\trp_two   <= p2c_in * p2d_in;\n"
+			"\t\t\trp_three <= p3c_in * p3d_in;\n"
+		"\t\tend\n");
+	}
 
 	if (formal_property_flag)
 		fprintf(fp,

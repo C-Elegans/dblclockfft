@@ -1002,6 +1002,8 @@ void	usage(void) {
 "\t\ta decimation in time inverse to do this, which this program does\n"
 "\t\tnot yet provide.)\n"
 "\t-S\tInclude the final bit reversal stage (default).\n"
+"\t-u\tYou will provide a generic module called fftmult that\n"
+"\t\tinstantiates a hardware multiplier\n"
 "\t-x <xtrabits>\tUse this many extra bits internally, before any final\n"
 "\t\trounding or truncation of the answer to the final number of\n"
 "\t\tbits.  The default is to use %d extra bits internally.\n",
@@ -1026,7 +1028,8 @@ int main(int argc, char **argv) {
 		verbose_flag = false,
 		single_clock = true,
 		real_fft = false,
-		async_reset = false;
+		async_reset = false,
+		custom_mult = false;
 	FILE	*vmain;
 	std::string	coredir = DEF_COREDIR, cmdline = "", hdrname = "";
 	ROUND_T	rounding = RND_CONVERGENT;
@@ -1046,7 +1049,7 @@ int main(int argc, char **argv) {
 	}
 
 	{ int c;
-	while((c = getopt(argc, argv, "12Aa:c:d:D:f:hik:m:n:p:rsSx:v")) != -1) {
+	while((c = getopt(argc, argv, "12Aa:c:d:D:f:hik:m:n:p:rsSux:v")) != -1) {
 		switch(c) {
 		case '1':	single_clock = true;  break;
 		case '2':	single_clock = false; break;
@@ -1084,6 +1087,7 @@ int main(int argc, char **argv) {
 		case 'r':	real_fft = true;		break;
 		case 'S':	bitreverse = true;		break;
 		case 's':	bitreverse = false;		break;
+		case 'u':	custom_mult = true;		break; 
 		case 'x':	xtrapbits = atoi(optarg);	break;
 		case 'v':	verbose_flag = true;		break;
 		// case 'z':	variable_size = true;		break;
@@ -1855,7 +1859,7 @@ SLASHLINE
 
 		fname = coredir + "/hwbfly.v";
 		build_hwbfly(fname.c_str(), xtracbits, rounding,
-			ckpce, async_reset);
+			ckpce, async_reset, custom_mult);
 
 		{
 			// To make debugging easier, we build both of these

@@ -334,7 +334,7 @@ SLASHLINE
 	// replaced by the parameter values in the calling program.  Only
 	// problem is, the CWIDTH needs to match exactly!
 	fprintf(fstage, "\tparameter\tIWIDTH=%d,CWIDTH=%d,OWIDTH=%d;\n",
-		nbits, 20, nbits+1); // 20, not cbits, since the tb depends upon it
+		nbits, 18, nbits+1); // 20, not cbits, since the tb depends upon it
 	fprintf(fstage,
 "\t// Parameters specific to the core that should be changed when this\n"
 "\t// core is built ... Note that the minimum LGSPAN (the base two log\n"
