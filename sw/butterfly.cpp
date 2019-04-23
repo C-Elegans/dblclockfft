@@ -1478,9 +1478,9 @@ SLASHLINE
 		// "\t\tassign rp_one_mult = p1c_in * p1d_in;\n"
 		// "\t\tassign rp_two_mult = p2c_in * p2d_in;\n"
 		// "\t\tassign rp_three_mult = p3c_in * p3d_in;\n"
-		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_one(i_clk, p1c_in, p1d_in, rp_one_mult);\n"
-		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_two(i_clk, p2c_in, p2d_in, rp_two_mult);\n"
-		"\t\tfftmult #(.CWIDTH(CWIDTH+1), .IWIDTH(IWIDTH+2)) mult_three(i_clk, p3c_in, p3d_in, rp_three_mult);\n");
+		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_one(i_clk, i_reset, p1c_in, p1d_in, rp_one_mult);\n"
+		"\t\tfftmult #(.CWIDTH(CWIDTH), .IWIDTH(IWIDTH+1)) mult_two(i_clk, i_reset, p2c_in, p2d_in, rp_two_mult);\n"
+		"\t\tfftmult #(.CWIDTH(CWIDTH+1), .IWIDTH(IWIDTH+2)) mult_three(i_clk, i_reset, p3c_in, p3d_in, rp_three_mult);\n");
 	}
 
 	fprintf(fp,
